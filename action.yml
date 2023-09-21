@@ -1,0 +1,103 @@
+apiVersion: automation.cloudbees.io/v1alpha1
+kind: action
+name: ec2-deploy-actions
+inputs:
+
+  source-location: # id of input
+    description: "source location to copy files from"
+    required: true
+    default: ""
+  destination-ec2-location: # id of input
+    description: "destination folder name in ec2"
+    required: true
+    default: ""
+  aws-ssh-key-data: # id of input
+    description: "ssh key pem data"
+    required: true
+    default: ""
+  aws-user: # id of input
+    description: "aws user  - to connect "
+    required: true
+    default: ""
+  aws-host: # id of input
+    description: "aws host  - to connect "
+    required: true
+    default: ""
+  deploy-command: # id of input
+    description: "Optional deploy command to execute (Note either this or deploy-script not both) "
+    required: false
+    default: ""
+  deploy-script: # id of input
+    description: "Optional deploy scriot to run (Note either this or deploy-script not both) "
+    required: false
+    default: ""
+runs:
+  using: composite
+  steps:
+    - id: ec2-deploy-action
+      name: ec2 deploy action
+      uses: docker://registry.saas-dev.beescloud.com/staging/sshactions:latest
+      shell: bash
+      run: |
+
+        set +x
+        
+        if  [ "${{ inputs.deploy-command }}" == "" ] &&  [ "${{ inputs.deploy-script }}" == "" ]
+        then
+               echo "Please provide one of deploy-command or deploy-script values"
+               exit 1
+
+        fi
+        #preprocess key data
+        kvalue='${{ inputs.aws-ssh-key-data }}'
+        #get begin 
+        prefix=${kvalue%%----- *}
+        pidx=${#prefix}+5
+        begin="${kvalue:0:$pidx}"
+        
+        #get end
+        suffix=${kvalue%*-----END*}
+        sidx=${#suffix}
+        end="${kvalue:$sidx}"
+        
+        #get mid
+        mid="${kvalue#*$begin }"
+        mid="${mid% $end*}"
+        
+        echo $begin > data.pem
+        # replace all spaces with new line
+        echo "${mid}" | tr -s "[:space:]" "\\n" >> data.pem
+        echo $end >> data.pem
+        chmod 400 data.pem
+
+
+        dest="${{ inputs.aws-user }}@${{ inputs.aws-host }}"
+        
+        # ssh version 
+        ssh -V
+
+
+        #scp 
+        echo "deploying to destination - scp  -r ${{ inputs.source-location }} $dest:${{ inputs.destination-ec2-location }}"
+        scp -i data.pem   -o StrictHostKeyChecking=no  -r ${{ inputs.source-location }} $dest:${{ inputs.destination-ec2-location }}
+        echo "deployed to destination "
+        
+        #post run deployment
+
+        echo "post deployment action  "
+        if  [ "${{ inputs.deploy-command }}" != "" ]
+        then
+           cmd="cd ${{ inputs.destination-ec2-location }};${{ inputs.deploy-command }}"
+           echo "Command action:   ssh  -i data.pem   $dest  \"$cmd\""
+           ssh  -i data.pem   $dest  "$cmd"
+        elif  [ "${{ inputs.deploy-script }}" != "" ]
+        then
+           cmd="cd ${{ inputs.destination-ec2-location }};chmod +x ${{ inputs.deploy-script }}; ./${{ inputs.deploy-script }}"
+           echo "Command action:   ssh  -i data.pem   $dest  \"$cmd\""
+           ssh  -i data.pem   $dest  "$cmd"
+        fi
+        
+
+        
+        #clean up
+        rm -f data.pem
