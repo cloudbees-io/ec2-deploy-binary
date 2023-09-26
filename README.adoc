@@ -1,4 +1,4 @@
-# ec2-deploy-actions
+== ec2-deploy-actions
 
 Run the action for folder contents tp destination folder in aws ec2 instance
 
@@ -13,7 +13,7 @@ Note: only one of the above optional parameters is needed for exeuction
  
 
 
-## Cloudbees action for invoking the ec2 deploy 
+## CloudBees action for invoking the ec2 deploy 
 
 This action can be used to invoke the ec2 deploy and execute command specified at the destination.
 
