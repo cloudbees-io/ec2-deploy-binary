@@ -21,7 +21,7 @@ This action can be used to invoke the ec2 deploy and execute command specified a
 
 ```yaml
    - name: ec2-deploy-with-command
-      uses: calculi-corp/ec2-deploy-actions@dev
+      uses: calculi-corp/ec2-deploy-actions@v1
       with:
         source-location: ${{ cloudbees.workspace }}/test/*
         destination-ec2-location: /home/ubuntu/mydeploys/hellowworld/
@@ -38,7 +38,7 @@ This action can be used to invoke the ec2 deploy and execute command specified a
 ```yaml
 
     - name: ec2-deploy-with-script
-      uses: calculi-corp/ec2-deploy-actions@dev
+      uses: calculi-corp/ec2-deploy-actions@v1
       with:
         source-location: ${{ cloudbees.workspace }}/test/*
         destination-ec2-location: /home/ubuntu/mydeploys/hellowworld/
