@@ -10,9 +10,6 @@ deploy-script  - to run the script copied from source-folder after deployment
 
 Note: only one of the above optional parameters is needed for exeuction
 
- 
-
-
 ## CloudBees action for invoking the ec2 deploy 
 
 This action can be used to invoke the ec2 deploy and execute command specified at the destination.
@@ -47,3 +44,82 @@ This action can be used to invoke the ec2 deploy and execute command specified a
         aws-host: ${{ secrets.EC2-ACTION-DEPLOY-HOST }}
         deploy-script: script1.sh
 ``` 
+
+NOTE: BELOW IS DRAFT OF PUBLIC README
+= CloudBees action: Deploy a binary with EC2
+
+Use this action to deploy an Amazon Elastic Compute Cloud (Amazon EC2) binary. Amazon EC2 is a web service of {AWS} (AWS).
+
+== Inputs
+
+[cols="2a,1a,1a,3a",options="header"]
+.Input details
+|===
+
+| Input name
+| Data type
+| Required?
+| Description
+
+| `aws-host`
+| String
+| Yes
+| The Amazon EC2 host URL.
+
+| `aws-ssh-key-data`
+| String
+| Yes
+| The AWS SSH key data.
+
+| `aws-user`
+| String
+| Yes
+| The AWS user to connect as.
+
+| `source-location`
+| String
+| Yes
+| The source location to copy files from.
+
+| `destination-ec2-location`
+| String
+| Yes
+| The destination location in the Amazon EC2 host.
+
+| `deploy-command`
+| String
+| No
+| The command to execute after deploying to the destination location.
+
+| `deploy-script`
+| String
+| No
+| The script file to execute after deploying to the destination location.
+|===
+
+== Usage example
+
+In your YAML file, add:
+
+[source,yaml]
+----
+      - name: Deploy EC2 binary
+        uses: cloudbees-io/ec2-deploy-binary@v1
+        with:
+          source-location: workspace/test/*
+          destination-ec2-location: /home/ubuntu/mydeploys/helloworld/
+          aws-ssh-key-data: ${{ secrets.AWS-DEPLOY-KEY }}
+          aws-user: ubuntu
+          aws-host: ${{ secrets.AWS-HOST }}
+          deploy-script: script1.sh
+----
+
+== License
+
+This code is made available under the 
+link:https://opensource.org/license/mit/[MIT license].
+
+== References
+
+* Learn more about link:https://docs.cloudbees.com/docs/cloudbees-saas-platform-actions/latest/[using actions in CloudBees workflows].
+* Learn about link:https://docs.cloudbees.com/docs/cloudbees-saas-platform/latest/[the CloudBees platform].
