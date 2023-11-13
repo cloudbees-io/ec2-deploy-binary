@@ -36,7 +36,7 @@ runs:
   steps:
     - id: ec2-deploy-action
       name: ec2 deploy action
-      uses: docker://registry.saas-dev.beescloud.com/staging/sshactions:latest
+      uses: docker://public.ecr.aws/l7o7z1g8/actions/sshactions:latest
       shell: bash
       run: |
 
