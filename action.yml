@@ -37,7 +37,7 @@ runs:
     - id: ec2-deploy-action
       name: ec2 deploy action
       uses: docker://public.ecr.aws/l7o7z1g8/actions/ssh-actions:main-89c7b24a7d2e40d4a46352188363abc4c17ef97d  
-      shell: bash
+      shell: sh
       run: |
 
         set +x
