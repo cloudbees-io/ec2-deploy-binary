@@ -94,7 +94,7 @@ runs:
            ssh  -i data.pem   $dest  "$cmd"
         elif  [ "${{ inputs.deploy-script }}" != "" ]
         then
-           cmd="cd ${{ inputs.destination-ec2-location }}; chmod +x ${{ inputs.deploy-script }}; ./${{ inputs.deploy-script }}; rm -f data.pem"
+           cmd="cd ${{ inputs.destination-ec2-location }}; chmod +x ${{ inputs.deploy-script }}; ./${{ inputs.deploy-script }}"
            echo "Command action:   ssh  -i data.pem   $dest  \"$cmd\""
            ssh  -i data.pem   $dest  "$cmd"
         fi
