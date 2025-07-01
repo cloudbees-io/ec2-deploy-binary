@@ -1,54 +1,7 @@
 == ec2-deploy-actions
 
-Run the action for folder contents tp destination folder in aws ec2 instance
+Use this action to deploy an Amazon Elastic Compute Cloud (Amazon EC2) binary. Amazon EC2 is a web service of Amazon Web Services (AWS).
 
-Note: 
-This action requires optional parameters
-
-deploy-command  - to run the command  after deployment
-deploy-script  - to run the script copied from source-folder after deployment
-
-Note: only one of the above optional parameters is needed for exeuction
-
-## CloudBees action for invoking the ec2 deploy 
-
-This action can be used to invoke the ec2 deploy and execute command specified at the destination.
-
-### Usage deploy to ec2 and run command
-
-```yaml
-   - name: ec2-deploy-with-command
-      uses: calculi-corp/ec2-deploy-actions@v1
-      with:
-        source-location: ${{ cloudbees.workspace }}/test/*
-        destination-ec2-location: /home/ubuntu/mydeploys/hellowworld/
-        aws-ssh-key-data: ${{ secrets.EC2-ACTION-DEPLOY-KEY }}
-        aws-user: ubuntu
-        aws-host: ${{ secrets.EC2-ACTION-DEPLOY-HOST }}
-        deploy-command: 'java -jar helloworld.jar'
-
-``` 
- This action can be used to invoke the ec2 deploy and execute script specified at the destination.
-
-### Usage deploy to ec2 and run script  
-
-```yaml
-
-    - name: ec2-deploy-with-script
-      uses: calculi-corp/ec2-deploy-actions@v1
-      with:
-        source-location: ${{ cloudbees.workspace }}/test/*
-        destination-ec2-location: /home/ubuntu/mydeploys/hellowworld/
-        aws-ssh-key-data: ${{ secrets.EC2-ACTION-DEPLOY-KEY }}
-        aws-user: ubuntu
-        aws-host: ${{ secrets.EC2-ACTION-DEPLOY-HOST }}
-        deploy-script: script1.sh
-``` 
-
-NOTE: BELOW IS DRAFT OF PUBLIC README
-= CloudBees action: Deploy a binary with EC2
-
-Use this action to deploy an Amazon Elastic Compute Cloud (Amazon EC2) binary. Amazon EC2 is a web service of {AWS} (AWS).
 
 == Inputs
 
@@ -97,29 +50,22 @@ Use this action to deploy an Amazon Elastic Compute Cloud (Amazon EC2) binary. A
 | The script file to execute after deploying to the destination location.
 |===
 
-== Usage example
 
-In your YAML file, add:
 
-[source,yaml]
-----
-      - name: Deploy EC2 binary
-        uses: cloudbees-io/ec2-deploy-binary@v1
-        with:
-          source-location: workspace/test/*
-          destination-ec2-location: /home/ubuntu/mydeploys/helloworld/
-          aws-ssh-key-data: ${{ secrets.AWS-DEPLOY-KEY }}
-          aws-user: ubuntu
-          aws-host: ${{ secrets.AWS-HOST }}
-          deploy-script: script1.sh
-----
 
-== License
 
-This code is made available under the 
-link:https://opensource.org/license/mit/[MIT license].
 
-== References
 
-* Learn more about link:https://docs.cloudbees.com/docs/cloudbees-saas-platform-actions/latest/[using actions in CloudBees workflows].
-* Learn about link:https://docs.cloudbees.com/docs/cloudbees-saas-platform/latest/[the CloudBees platform].
+ This action can be used to invoke the ec2 deploy and execute script specified at the destination.
+
+```yaml
+    - name: ec2-deploy-with-script
+      uses: calculi-corp/ec2-deploy-actions@v1
+      with:
+        source-location: ${{ cloudbees.workspace }}/test/*
+        destination-ec2-location: /home/ubuntu/mydeploys/hellowworld/
+         aws-host: ${{ secrets.EC2-ACTION-DEPLOY-HOST }}
+        aws-ssh-key-data: ${{ secrets.EC2-ACTION-DEPLOY-KEY }}
+        aws-user: ubuntu
+        deploy-script: script1.sh
+``` 
