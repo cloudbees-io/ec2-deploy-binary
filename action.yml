@@ -28,14 +28,14 @@ inputs:
     required: false
     default: ""
   deploy-script: # id of input
-    description: "Optional deploy scriot to run (Note either this or deploy-script not both) "
+    description: "Optional deploy scriot to run (Note either this or deploy-command not both) "
     required: false
     default: ""
 runs:
   using: composite
   steps:
     - name: ec2 deploy action
-      uses: docker://kroniak/ssh-client:3.19
+      uses: docker://public.ecr.aws/cloudbees/actions/ssh-actions:main-90a83c944df62fc570b645bdd29b48494b658162
       shell: bash
       run: |
         set +x
@@ -46,45 +46,45 @@ runs:
                exit 1
         fi
 
-        # prepare pem file from ssh key 
+        # prepare pem file from ssh key
         if [ -n "${{ inputs.aws-ssh-key-data }}" ]; then
           #preprocess key data
           kvalue="${{ inputs.aws-ssh-key-data }}"
-         
-          #get begin 
+
+          #get begin
           prefix=${kvalue%%----- *}
           pidx=${#prefix}+5
           begin="${kvalue:0:$pidx}"
-            
+
           #get end
           suffix=${kvalue%*-----END*}
           sidx=${#suffix}
           end="${kvalue:$sidx}"
-            
+
           #get mid
           mid="${kvalue#*$begin }"
           mid="${mid% $end*}"
-    
+
           {
             echo "$begin"
             # Replace all spaces with newlines
             echo "$mid" | tr -s '[:space:]' '\n'
             echo "$end"
           } > data.pem
-    
-          chmod 400 data.pem 
+
+          chmod 400 data.pem
         fi
 
         dest="${{ inputs.aws-user }}@${{ inputs.aws-host }}"
-        
-        # ssh version 
+
+        # ssh version
         ssh -V
-        
-        #scp 
+
+        #scp
         echo "deploying to destination - scp  -r ${{ inputs.source-location }} $dest:${{ inputs.destination-ec2-location }}"
         scp -i data.pem   -o StrictHostKeyChecking=no  -r ${{ inputs.source-location }} $dest:${{ inputs.destination-ec2-location }}
         echo "deployed to destination "
-        
+
         #post run deployment
         echo "post deployment action  "
         if  [ "${{ inputs.deploy-command }}" != "" ]
@@ -98,6 +98,6 @@ runs:
            echo "Command action:   ssh  -i data.pem   $dest  \"$cmd\""
            ssh  -i data.pem   $dest  "$cmd"
         fi
-              
+
         #clean up
         rm -f data.pem
