@@ -1,4 +1,4 @@
-== ec2-deploy-actions
+== ec2-deploy-binary
 
 Use this action to deploy an Amazon Elastic Compute Cloud (Amazon EC2) binary. Amazon EC2 is a web service of Amazon Web Services (AWS).
 
@@ -56,11 +56,11 @@ Use this action to deploy an Amazon Elastic Compute Cloud (Amazon EC2) binary. A
 
 
 
- This action can be used to invoke the ec2 deploy and execute script specified at the destination.
+ This action can be used to invoke the EC2 deploy and execute script specified at the destination.
 
 ```yaml
     - name: ec2-deploy-with-script
-      uses: calculi-corp/ec2-deploy-actions@v1
+      uses: cloudbees-io/ec2-deploy-binary@v1
       with:
         source-location: ${{ cloudbees.workspace }}/test/*
         destination-ec2-location: /home/ubuntu/mydeploys/hellowworld/
