@@ -31,13 +31,22 @@ inputs:
     description: "Optional deploy scriot to run (Note either this or deploy-script not both) "
     required: false
     default: ""
+  dry-run:
+    description: "Optional boolean to avoid real execution in EC2, will only print the commands instead"
+    required: false
+    default: false
 runs:
   using: composite
   steps:
-    - name: ec2 deploy action
-      uses: docker://kroniak/ssh-client:3.19
-      shell: bash
+    - id: ec2-deploy-action
+      name: ec2 deploy action
+      uses: docker://public.ecr.aws/cloudbees/actions/ssh-utils:main-52eaa831ab25b783fb931f3d33048061f9408cf6
+      shell: sh
       run: |
+        dryrun=false
+        if [ "${{  inputs.dry-run }}" = "true" ]; then
+          dryrun=true
+        fi
         set +x
 
         if  [ "${{ inputs.deploy-command }}" == "" ] &&  [ "${{ inputs.deploy-script }}" == "" ]
@@ -46,58 +55,70 @@ runs:
                exit 1
         fi
 
-        # prepare pem file from ssh key 
+        # prepare pem file from ssh key
         if [ -n "${{ inputs.aws-ssh-key-data }}" ]; then
           #preprocess key data
           kvalue="${{ inputs.aws-ssh-key-data }}"
-         
-          #get begin 
+
+          #get begin
           prefix=${kvalue%%----- *}
           pidx=${#prefix}+5
           begin="${kvalue:0:$pidx}"
-            
+
           #get end
           suffix=${kvalue%*-----END*}
           sidx=${#suffix}
           end="${kvalue:$sidx}"
-            
+
           #get mid
           mid="${kvalue#*$begin }"
           mid="${mid% $end*}"
-    
+
           {
             echo "$begin"
             # Replace all spaces with newlines
             echo "$mid" | tr -s '[:space:]' '\n'
             echo "$end"
           } > data.pem
-    
-          chmod 400 data.pem 
+
+          chmod 400 data.pem
         fi
 
         dest="${{ inputs.aws-user }}@${{ inputs.aws-host }}"
-        
-        # ssh version 
+
+        # ssh version
         ssh -V
-        
-        #scp 
+
+        #scp
         echo "deploying to destination - scp  -r ${{ inputs.source-location }} $dest:${{ inputs.destination-ec2-location }}"
-        scp -i data.pem   -o StrictHostKeyChecking=no  -r ${{ inputs.source-location }} $dest:${{ inputs.destination-ec2-location }}
+        if [ "$dryrun" = true ]; then
+          echo "DRYRUN: skipping command"
+        else
+          scp -i data.pem   -o StrictHostKeyChecking=no  -r ${{ inputs.source-location }} $dest:${{ inputs.destination-ec2-location }}
+        fi
         echo "deployed to destination "
-        
+
         #post run deployment
         echo "post deployment action  "
         if  [ "${{ inputs.deploy-command }}" != "" ]
         then
            cmd="cd ${{ inputs.destination-ec2-location }};${{ inputs.deploy-command }}"
            echo "Command action:   ssh  -i data.pem   $dest  \"$cmd\""
-           ssh  -i data.pem   $dest  "$cmd"
+           if [ "$dryrun" = true ]; then
+             echo "DRYRUN: skipping command"
+           else
+             ssh  -i data.pem   $dest  "$cmd"
+          fi
         elif  [ "${{ inputs.deploy-script }}" != "" ]
         then
            cmd="cd ${{ inputs.destination-ec2-location }}; chmod +x ${{ inputs.deploy-script }}; ./${{ inputs.deploy-script }}"
            echo "Command action:   ssh  -i data.pem   $dest  \"$cmd\""
-           ssh  -i data.pem   $dest  "$cmd"
+           if [ "$dryrun" = true ]; then
+             echo "DRYRUN: skipping command"
+           else
+             ssh  -i data.pem   $dest  "$cmd"
+           fi
         fi
-              
+
         #clean up
         rm -f data.pem

@@ -48,6 +48,11 @@ Use this action to deploy an Amazon Elastic Compute Cloud (Amazon EC2) binary. A
 | String
 | No
 | The script file to execute after deploying to the destination location.
+
+| `dry-run`
+| Boolean
+| No
+| Flag to avoid real action execution, will only print the commands it would run instead.
 |===
 
 
@@ -68,4 +73,4 @@ Use this action to deploy an Amazon Elastic Compute Cloud (Amazon EC2) binary. A
         aws-ssh-key-data: ${{ secrets.EC2-ACTION-DEPLOY-KEY }}
         aws-user: ubuntu
         deploy-script: script1.sh
-``` 
+```
